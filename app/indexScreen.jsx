@@ -8,7 +8,7 @@ import { router } from "expo-router";
 const buttonText = ["Capture", "Vibe"]
 
 
-export default function LandingScreen({navigation}) {
+export default function LandingScreen() {
   // state to keep track of the buttonText index
   const [currentTextIndex,setCurrentTextIndex] = useState(0);
   // initial state of the loader
@@ -51,13 +51,14 @@ export default function LandingScreen({navigation}) {
                 <Pressable style={styles.button} onPress={handleNavigation}>
                   <Text style={styles.buttontext}>{buttonText[currentTextIndex]}</Text>
                 </Pressable>
-               
+               {/* Show the loader when state is true */}
                 {loading && <ActivityIndicator size="large" color="white" marginTop="10"/>}
             </View>  
    </SafeAreaView>
    </>
   );
 }
+
 // Styles 
 const styles = StyleSheet.create({
   container: {

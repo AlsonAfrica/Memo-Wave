@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {  SafeAreaView } from "react-native";
-import { StyleSheet,View,Text,Pressable,ActivityIndicator } from "react-native";
+import { StyleSheet,View,Text,Pressable,} from "react-native";
 import { useState} from "react";
 import { router } from "expo-router";
 
@@ -11,7 +11,7 @@ export default function LandingScreen() {
     const [loading,setloading]=useState(false);
     
     //  Navigation function with loader
-  const handleNavigationRecord = ()=>{
+  const handleNavigation = ()=>{
     setloading(true);
 
     setTimeout(()=>{
@@ -26,15 +26,12 @@ export default function LandingScreen() {
    <SafeAreaView style={styles.safeareaview}>
         <StatusBar style="light"/>
             <View style={styles.container}>
-               <Pressable style={styles.button} onPress={handleNavigationRecord}>
-                  <Text style={styles.buttontext}>Record</Text>
-                </Pressable>
+                <Text>Hello</Text>
                 
                  <Pressable style={styles.button} onPress={()=> router.replace("./indexScreen")}>
                   <Text style={styles.buttontext}>Recordings</Text>
                 </Pressable>
             </View>
-             {loading && <ActivityIndicator size="large" color="white" marginTop="10"/>}
    </SafeAreaView>
    </>
   );
