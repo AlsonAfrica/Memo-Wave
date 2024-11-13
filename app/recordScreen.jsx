@@ -125,13 +125,13 @@ export default function RecordingScreen() {
             {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <FontAwesome name="play" size={15} color="white" />}
           </Text>
         </Pressable>
-        <Pressable
+        {/* <Pressable
           style={styles.button}
           onPress={clearRecordings}
           disabled={recordings.length === 0}
         >
           <Text style={styles.buttonText}>Clear Recordings</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
     </SafeAreaView>
   );
@@ -151,13 +151,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 50,
     left: "50%",
-    transform: [{ translateX: -100 }],
+    transform: [{ translateX: -20 }],
   },
   button: {
     padding: 15,
     backgroundColor: '#1e90ff',
     borderRadius: 5,
     marginVertical: 10,
+    borderRadius:"50%",
+    height:50,
+    width:50,
+    alignItems:"center"
   },
   buttonText: {
     color: 'white',
