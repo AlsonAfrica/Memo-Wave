@@ -5,10 +5,14 @@ import { Audio } from 'expo-av';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { ActivityIndicator } from 'react-native-web';
+import { router } from 'expo-router';
 
 export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
+  const [loading,setloading]=useState(false)
   // const [loading, setLoading] = useState(false);
   // const router = useRouter();
 
@@ -27,6 +31,16 @@ export default function RecordingScreen() {
     } catch (error) {
       console.error('Error starting recording:', error);
     }
+  }
+
+  // get back 
+  const handleBack = ()=>{
+    setloading(true);
+
+    setTimeout(()=>{
+      router.replace("./navigationScreen");
+      setloading(false)
+    }, 1000)
   }
 
   // Function to stop recording audio
@@ -99,9 +113,9 @@ export default function RecordingScreen() {
   }
 
   // Function to clear all recordings
-  function clearRecordings() {
-    setRecordings([]);
-  }
+  // function clearRecordings() {
+  //   setRecordings([]);
+  // }
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
@@ -109,10 +123,16 @@ export default function RecordingScreen() {
       
       {/* Scrollable list of recordings */}
       <ScrollView style={styles.recordingListContainer}>
+
         <View>
-          <Text style={{ textAlign: "center" }}>Your Recordings</Text>
+          <Pressable style={styles.backbutton}>
+            <Text><Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} /></Text>
+          </Pressable>
+          <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" }}>Your Recordings</Text>
           {getRecordingLines()}
+          {loading && <ActivityIndicator size="large" color="#5AB8A6"/>}
         </View>
+       
       </ScrollView>
       
       {/* Control buttons */}
@@ -197,4 +217,8 @@ const styles = StyleSheet.create({
     // Shadow for Android
     elevation: 10,
   },
+  backbutton:{
+    margin:10,
+   marginHorizontal:-10
+  }
 });

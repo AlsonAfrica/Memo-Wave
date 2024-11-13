@@ -31,7 +31,7 @@ export default function NavigationScreen() {
                 </Pressable>
                 
                  <Pressable style={styles.button} onPress={()=> router.replace("./indexScreen")}>
-                  <Text style={styles.buttontext}>Recordings</Text>
+                  <Text style={styles.buttontext}>Support</Text>
                 </Pressable>
             </View>
              {loading && <ActivityIndicator size="large" color="white" marginTop="10"/>}
