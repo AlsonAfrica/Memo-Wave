@@ -47,7 +47,7 @@ export default function LandingScreen() {
               source={require("../assets/microphone.png")}
               />
                 <Text style={styles.logoText}>Memo-Wave</Text>
-                <Text>"Press the button below to record"</Text>
+                <Text>"Press the button below to take Notes"</Text>
                 <Pressable style={styles.button} onPress={handleNavigation}>
                   <Text style={styles.buttontext}>{buttonText[currentTextIndex]}</Text>
                 </Pressable>

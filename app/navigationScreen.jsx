@@ -7,7 +7,7 @@ import { router } from "expo-router";
 
 
 
-export default function LandingScreen() {
+export default function NavigationScreen() {
     const [loading,setloading]=useState(false);
     
     //  Navigation function with loader
