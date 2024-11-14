@@ -9,6 +9,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator } from 'react-native-web';
 import { router } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
+import * as FileSystem from 'expo-file-system';
 
 export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
@@ -62,6 +63,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       setloading(false)
     }, 1000)
   }
+
 
   // Function to stop recording audio
   async function stopRecording() {
