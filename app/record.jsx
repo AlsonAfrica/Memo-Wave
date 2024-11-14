@@ -8,6 +8,7 @@ import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator } from 'react-native-web';
 import { router } from 'expo-router';
+import Octicons from '@expo/vector-icons/Octicons';
 
 export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
@@ -161,7 +162,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
           onPress={recording ? stopRecording : startRecording}
         >
           <Text style={styles.buttonText}>
-            {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <FontAwesome name="play" size={15} color="white" />}
+            {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <Octicons name="dot-fill" size={36} color="red" />}
           </Text>
         </Pressable>
         {/* <Pressable
@@ -200,10 +201,12 @@ const styles = StyleSheet.create({
     borderRadius:"50%",
     height:50,
     width:50,
-    alignItems:"center"
+    alignItems:"center",
+    justifyContent:"center",
+    padding:10
   },
   buttonText: {
-    color: 'white',
+    color: 'white'
   },
   row: {
     flexDirection: 'row',

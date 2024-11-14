@@ -20,6 +20,15 @@ export default function NavigationScreen() {
     }, 1000)
   }
 
+  const handleNavigationSupport = ()=>{
+    setloading(true);
+
+    setTimeout(()=>{
+      router.replace("./support");
+      setloading(false)
+    }, 1000)
+  }
+
 
   return (
    <>
@@ -30,7 +39,7 @@ export default function NavigationScreen() {
                   <Text style={styles.buttontext}>Record</Text>
                 </Pressable>
                 
-                 <Pressable style={styles.button} onPress={()=> router.replace("./index")}>
+                 <Pressable style={styles.button} onPress={handleNavigationSupport}>
                   <Text style={styles.buttontext}>Support</Text>
                 </Pressable>
             </View>
