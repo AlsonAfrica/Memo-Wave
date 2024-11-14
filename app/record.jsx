@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, Pressable, StyleSheet, StatusBar, ScrollView,Alert } from 'react-native';
 import { Audio } from 'expo-av';
 // import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
@@ -9,7 +10,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ActivityIndicator } from 'react-native-web';
 import { router } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
-import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
@@ -54,6 +56,22 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
     }
   }
 
+  useEffect(() => {
+    // Load recordings from AsyncStorage on component mount
+    const loadRecordings = async () => {
+      try {
+        const savedRecordings = await AsyncStorage.getItem('recordings');
+        if (savedRecordings) {
+          setRecordings(JSON.parse(savedRecordings));
+        }
+      } catch (error) {
+        console.error('Error loading recordings:', error);
+      }
+    };
+  
+    loadRecordings();
+  }, []);
+
   // get back 
   const handleBack = ()=>{
     setloading(true);
@@ -64,23 +82,29 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
     }, 1000)
   }
 
-
   // Function to stop recording audio
   async function stopRecording() {
     try {
       if (!recording) return;
-
+  
       await recording.stopAndUnloadAsync();
       const { sound, status } = await recording.createNewLoadedSoundAsync();
       
-      setRecordings((prevRecordings) => [
-        ...prevRecordings,
-        {
-          sound,
-          duration: getDurationFormatted(status.durationMillis),
-          file: recording.getURI(),
-        },
-      ]);
+      const newRecording = {
+        sound,
+        duration: getDurationFormatted(status.durationMillis),
+        file: recording.getURI(),
+      };
+  
+      // Update state
+      setRecordings((prevRecordings) => [...prevRecordings, newRecording]);
+  
+      // Save to AsyncStorage
+      const savedRecordings = await AsyncStorage.getItem('recordings');
+      const recordingsArray = savedRecordings ? JSON.parse(savedRecordings) : [];
+      recordingsArray.push(newRecording);
+      await AsyncStorage.setItem('recordings', JSON.stringify(recordingsArray));
+  
       setRecording(null);
     } catch (error) {
       console.error('Error stopping recording:', error);
@@ -95,15 +119,25 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
   }
 
   // Function to delete a recording by index
-  const deleteRecording = (index) => {
+  const deleteRecording = async (index) => {
     Alert.alert(
       `Delete Recording #${index + 1}`, // Display a clear message with recording number
       'Are you sure you want to delete this recording?', // Additional confirmation text
       [
         {
           text: 'Yes',
-          onPress: () => {
-            setRecordings((prevRecordings) => prevRecordings.filter((_, i) => i !== index));
+          onPress: async () => {
+            // Remove recording from state
+            setRecordings((prevRecordings) => {
+              const updatedRecordings = prevRecordings.filter((_, i) => i !== index);
+              
+              // Update AsyncStorage with the new list
+              AsyncStorage.setItem('recordings', JSON.stringify(updatedRecordings))
+                .catch((error) => console.error('Error updating AsyncStorage:', error));
+  
+              return updatedRecordings;
+            });
+  
             console.log(`Recording #${index + 1} deleted`); // Log the deletion
           },
           style: 'destructive', // Optional style for emphasis on destructive action
@@ -116,7 +150,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       ]
     );
   };
-
+  
   // Function to render each recording item
   function getRecordingLines() {
     return recordings.map((recordingLine, index) => (
