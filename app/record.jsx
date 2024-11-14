@@ -16,6 +16,25 @@ export default function RecordingScreen() {
   // const [loading, setLoading] = useState(false);
   // const router = useRouter();
 
+//  Destructure Date.now() to receive date and time
+const now = Date.now();
+
+const date = new Date(now);
+
+// Extract the date components
+const day = date.getDate();
+const month = date.getMonth();
+const year = date.getFullYear();
+
+// Extract the time components
+const hours = date.getHours();
+const minutes = date.getMinutes();
+const seconds = date.getSeconds();
+
+// Format the date and time as a string
+const formattedDate = `${day}/${month}/${year}`;
+const formattedTime = `${hours}:${minutes}:${seconds}`
+
   // Function to start recording audio
   async function startRecording() {
     try {
@@ -38,7 +57,7 @@ export default function RecordingScreen() {
     setloading(true);
 
     setTimeout(()=>{
-      router.replace("./navigationScreen");
+      router.replace("./navigation");
       setloading(false)
     }, 1000)
   }
@@ -100,7 +119,7 @@ export default function RecordingScreen() {
     return recordings.map((recordingLine, index) => (
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
-          <Text style={styles.fill}>Recording #{index + 1} | {recordingLine.duration}</Text>
+          <Text style={styles.fill}>Recording #{index + 1} | {recordingLine.duration}| {formattedDate} | {formattedTime}</Text>
           <Pressable onPress={() => recordingLine.sound.replayAsync()} title="Play">
             <Text>Play</Text>
           </Pressable>
@@ -119,7 +138,7 @@ export default function RecordingScreen() {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <StatusBar style="light" />
+      <StatusBar style="Dark" />
       
       {/* Scrollable list of recordings */}
       <ScrollView style={styles.recordingListContainer}>

@@ -31,7 +31,7 @@ export default function LandingScreen() {
     setloading(true);
 
     setTimeout(()=>{
-      router.replace("./navigationScreen");
+      router.replace("./navigation");
       setloading(false)
     }, 1000)
   }
@@ -39,7 +39,7 @@ export default function LandingScreen() {
   return (
    <>
    <SafeAreaView style={styles.safeareaview}>
-        <StatusBar style="light"/>
+        <StatusBar style="Dark"/>
             <View style={styles.container}>
               <Image
               resizeMode="contain"

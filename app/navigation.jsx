@@ -15,7 +15,7 @@ export default function NavigationScreen() {
     setloading(true);
 
     setTimeout(()=>{
-      router.replace("./recordScreen");
+      router.replace("./record");
       setloading(false)
     }, 1000)
   }
@@ -24,13 +24,13 @@ export default function NavigationScreen() {
   return (
    <>
    <SafeAreaView style={styles.safeareaview}>
-        <StatusBar style="light"/>
+        <StatusBar style="Dark"/>
             <View style={styles.container}>
                <Pressable style={styles.button} onPress={handleNavigationRecord}>
                   <Text style={styles.buttontext}>Record</Text>
                 </Pressable>
                 
-                 <Pressable style={styles.button} onPress={()=> router.replace("./indexScreen")}>
+                 <Pressable style={styles.button} onPress={()=> router.replace("./index")}>
                   <Text style={styles.buttontext}>Support</Text>
                 </Pressable>
             </View>
