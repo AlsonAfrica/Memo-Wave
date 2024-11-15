@@ -4,6 +4,7 @@ import { StyleSheet,View,Text,Pressable,ActivityIndicator } from "react-native";
 import { useState,useEffect } from "react";
 import { router } from "expo-router";
 
+
 // array that holds 2 strings rendered in the button
 const buttonText = ["Capture", "Vibe"]
 
@@ -54,6 +55,7 @@ export default function LandingScreen() {
                {/* Show the loader when state is true */}
                 {loading && <ActivityIndicator size="large" color="white" marginTop="10"/>}
             </View>  
+          
    </SafeAreaView>
    </>
   );

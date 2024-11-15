@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, Pressable, StyleSheet, StatusBar, ScrollView,Alert } from 'react-native';
 import { Audio } from 'expo-av';
-// import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +9,7 @@ import { ActivityIndicator } from 'react-native-web';
 import { router } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 
 export default function RecordingScreen() {
@@ -104,10 +103,24 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       const recordingsArray = savedRecordings ? JSON.parse(savedRecordings) : [];
       recordingsArray.push(newRecording);
       await AsyncStorage.setItem('recordings', JSON.stringify(recordingsArray));
-  
+
+      Toast.show({
+        type: 'success',
+        text1: 'Recording Saved!',
+        text2: 'Your recording has been successfully saved.',
+        position: 'top',
+      });
+      
       setRecording(null);
     } catch (error) {
       console.error('Error stopping recording:', error);
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Error!',
+        text2: 'Failed to save the recording.',
+        position: 'top',
+      });
     }
   }
 
@@ -136,6 +149,13 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
                 .catch((error) => console.error('Error updating AsyncStorage:', error));
   
               return updatedRecordings;
+            });
+          //  Toaster Positioning 
+            Toast.show({
+              type: 'success',
+              text1: 'Recording Deleted!',
+              text2: 'Your recording has been successfully Deleted.',
+              position: 'top',
             });
   
             console.log(`Recording #${index + 1} deleted`); // Log the deletion
@@ -208,6 +228,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
         >
           <Text style={styles.buttonText}>Clear Recordings</Text>
         </Pressable> */}
+        <Toast/>
       </View>
     </SafeAreaView>
   );
