@@ -10,14 +10,18 @@ import { router } from 'expo-router';
 import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import { TextInput } from 'react-native';
+
+// import * as Progress from 'react-native-progress';
 
 
 export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
-  const [loading,setloading]=useState(false)
-  // const [loading, setLoading] = useState(false);
-  // const router = useRouter();
+  const [loading,setloading]=useState(false);
+  // const [progress,setprogress] = useState(false);
+  // const [currentPlayingIndex, setCurrentTextIndex]=useState(null)
+
 
 //  Destructure Date.now() to receive date and time
 const now = Date.now();
@@ -71,7 +75,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
     loadRecordings();
   }, []);
 
-  // get back 
+  // NAVIGATE BACK TO THE PREVIOUS PAGE
   const handleBack = ()=>{
     setloading(true);
 
@@ -176,12 +180,15 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
     return recordings.map((recordingLine, index) => (
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
-          <Text style={styles.fill}>Recording #{index + 1} | {recordingLine.duration}| {formattedDate} | {formattedTime}</Text>
+          <Text style={styles.fill}>Recording #{index + 1} | {recordingLine.duration} | {formattedDate} | {formattedTime}</Text>
           <Pressable onPress={() => recordingLine.sound.replayAsync()} title="Play">
             <Text>Play</Text>
           </Pressable>
           <Pressable onPress={() => console.log("Shared")}>
             <EvilIcons name="share-apple" size={15} color="black" />
+          </Pressable>
+          <Pressable>
+          <Ionicons name="ellipsis-vertical" size={15} color="black" />
           </Pressable>
         </View>
       </Pressable>
@@ -202,9 +209,10 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
 
         <View>
           <Pressable style={styles.backbutton}>
-            <Text><Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} /></Text>
+            <Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} />
           </Pressable>
           <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" }}>Your Recordings</Text>
+           <TextInput style={styles.input} placeholder='Search...'/>
           {getRecordingLines()}
           {loading && <ActivityIndicator size="large" color="#5AB8A6"/>}
         </View>
@@ -221,19 +229,14 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
             {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <Octicons name="dot-fill" size={36} color="red" />}
           </Text>
         </Pressable>
-        {/* <Pressable
-          style={styles.button}
-          onPress={clearRecordings}
-          disabled={recordings.length === 0}
-        >
-          <Text style={styles.buttonText}>Clear Recordings</Text>
-        </Pressable> */}
         <Toast/>
       </View>
     </SafeAreaView>
   );
 }
 
+
+// Syles
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
@@ -269,11 +272,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: 50,
-    gap: 10,
+    gap:10,
     width: "100%",
     borderRadius: 10,
-    padding: 10,
+    padding: 15,
     backgroundColor: '#f0f0f0',
+    marginTop:10
   },
   fill: {
     flex: 1,
@@ -299,5 +303,16 @@ const styles = StyleSheet.create({
   backbutton:{
     margin:10,
    marginHorizontal:-10
+  },
+  input:{
+      flex: 1,
+      height: 40,
+      fontSize: 16,
+      borderWidth: 2,
+      marginTop:10,
+      borderRadius:"20px",
+      padding:7,
+      width:"100%",
+      borderColor:"#5AB8A6",
   }
 });
