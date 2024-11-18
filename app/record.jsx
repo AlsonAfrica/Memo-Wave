@@ -11,7 +11,8 @@ import Octicons from '@expo/vector-icons/Octicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { TextInput } from 'react-native';
-
+import * as Sharing from 'expo-sharing'
+import * as FileSystem from 'expo-file-system';
 // import * as Progress from 'react-native-progress';
 
 
@@ -128,8 +129,70 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       });
     }
   }
-  
 
+  const shareRecording = async (recordingLine) => {
+    try {
+      // Check if sharing is available
+      if (!(await Sharing.isAvailableAsync())) {
+        Toast.show({
+          type: 'error',
+          text1: 'Sharing Unavailable',
+          text2: 'Sharing is not supported on this device.',
+          position: 'top',
+        });
+        return;
+      }
+  
+      // Ensure we have a valid URI
+      if (!recordingLine?.uri) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No recording file found.',
+          position: 'top',
+        });
+        return;
+      }
+  
+      // Check file exists and is readable
+      const fileInfo = await FileSystem.getInfoAsync(recordingLine.uri);
+      if (!fileInfo.exists) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Recording file is missing.',
+          position: 'top',
+        });
+        return;
+      }
+  
+      // Generate a shareable filename
+      const fileName = `Recording_${new Date().toISOString().replace(/:/g, '-')}.mp4`;
+      const newUri = `${FileSystem.documentDirectory}${fileName}`;
+  
+      // Copy the file to a shareable location
+      await FileSystem.copyAsync({
+        from: recordingLine.uri,
+        to: newUri,
+      });
+  
+      // Share the file
+      await Sharing.shareAsync(newUri, {
+        mimeType: 'audio/mp4', // Adjust mime type as needed
+        dialogTitle: 'Share Your Recording',
+      });
+  
+    } catch (error) {
+      console.error('Error sharing recording:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Sharing Failed',
+        text2: 'Unable to share the recording.',
+        position: 'top',
+      });
+    }
+  };
+  
   // Helper function to format recording duration
   function getDurationFormatted(milliseconds) {
     const minutes = Math.floor(milliseconds / 1000 / 60);
@@ -202,7 +265,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
           <Pressable onPress={() => playSound(recordingLine.uri)}>
             <Text>Play</Text>
           </Pressable>
-          <Pressable onPress={() => console.log('Shared')}>
+          <Pressable onPress={() => shareRecording(recordingLine)}>
             <EvilIcons name="share-apple" size={15} color="black" />
           </Pressable>
           <Pressable>
