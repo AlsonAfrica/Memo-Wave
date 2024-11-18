@@ -91,15 +91,16 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       if (!recording) return;
   
       await recording.stopAndUnloadAsync();
-      const { sound, status } = await recording.createNewLoadedSoundAsync();
-      
+      const uri = recording.getURI();
+  
+      const { sound, status } = await Audio.Sound.createAsync({ uri });
+  
       const newRecording = {
-        sound,
-        duration: getDurationFormatted(status.durationMillis),
-        file: recording.getURI(),
+        uri, // Save file URI
+        duration: getDurationFormatted(status.durationMillis), // Save formatted duration
       };
   
-      // Update state
+      // Update state with new recording
       setRecordings((prevRecordings) => [...prevRecordings, newRecording]);
   
       // Save to AsyncStorage
@@ -107,18 +108,18 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       const recordingsArray = savedRecordings ? JSON.parse(savedRecordings) : [];
       recordingsArray.push(newRecording);
       await AsyncStorage.setItem('recordings', JSON.stringify(recordingsArray));
-
+  
       Toast.show({
         type: 'success',
         text1: 'Recording Saved!',
         text2: 'Your recording has been successfully saved.',
         position: 'top',
       });
-      
+  
       setRecording(null);
     } catch (error) {
       console.error('Error stopping recording:', error);
-      
+  
       Toast.show({
         type: 'error',
         text1: 'Error!',
@@ -127,6 +128,7 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       });
     }
   }
+  
 
   // Helper function to format recording duration
   function getDurationFormatted(milliseconds) {
@@ -177,23 +179,40 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
   
   // Function to render each recording item
   function getRecordingLines() {
+    const playSound = async (uri) => {
+      try {
+        const { sound } = await Audio.Sound.createAsync({ uri });
+        await sound.playAsync();
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync(); // Unload sound when playback is finished
+          }
+        });
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
+    };
+  
     return recordings.map((recordingLine, index) => (
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
-          <Text style={styles.fill}>Recording #{index + 1} | {recordingLine.duration} | {formattedDate} | {formattedTime}</Text>
-          <Pressable onPress={() => recordingLine.sound.replayAsync()} title="Play">
+          <Text style={styles.fill}>
+            Recording #{index + 1} | {recordingLine.duration} | {formattedDate} | {formattedTime}
+          </Text>
+          <Pressable onPress={() => playSound(recordingLine.uri)}>
             <Text>Play</Text>
           </Pressable>
-          <Pressable onPress={() => console.log("Shared")}>
+          <Pressable onPress={() => console.log('Shared')}>
             <EvilIcons name="share-apple" size={15} color="black" />
           </Pressable>
           <Pressable>
-          <Ionicons name="ellipsis-vertical" size={15} color="black" />
+            <Ionicons name="ellipsis-vertical" size={15} color="black" />
           </Pressable>
         </View>
       </Pressable>
     ));
   }
+  
 
   // Function to clear all recordings
   // function clearRecordings() {
