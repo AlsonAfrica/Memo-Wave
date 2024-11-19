@@ -43,11 +43,10 @@ const seconds = date.getSeconds();
 const formattedDate = `${day}/${month}/${year}`;
 const formattedTime = `${hours}:${minutes}:${seconds}`
 
-function getFilteredRecordings() {
-  return recordings.filter((recording) =>
-    (recording.title || `Recording #${index + 1}`).toLowerCase().includes(searchQuery.toLowerCase())
-  );
-}
+const filteredRecordings = recordings.filter((recording) =>
+  (recording.title || "").toLowerCase().includes(searchQuery.toLowerCase()) // Ensure title exists before calling toLowerCase()
+);
+
   // Function to start recording audio
   async function startRecording() {
     try {
@@ -280,7 +279,7 @@ function getFilteredRecordings() {
       }
     };
   
-    return recordings.map((recordingLine, index) => (
+    return filteredRecordings.map((recordingLine, index) => (
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
           {/* Editable title */}
