@@ -32,7 +32,7 @@ export default function LandingScreen() {
     setloading(true);
 
     setTimeout(()=>{
-      router.replace("./navigation");
+      router.replace("./record");
       setloading(false)
     }, 1000)
   }

@@ -283,26 +283,32 @@ const filteredRecordings = recordings.filter((recording) =>
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
           {/* Editable title */}
-          <TextInput
-            style={styles.recordInput}
-            value={recordingLine.title || `Recording #${index + 1}`}
-            onChangeText={(newTitle) => updateRecordingTitle(index, newTitle)}
-            placeholder="Enter title"
-          />
-          <Text style={styles.metadata}>
-            {recordingLine.duration} | {formattedDate} | {formattedTime}
-          </Text>
+          <View style={styles.textDate}>
+            <TextInput
+              style={styles.recordInput}
+              value={recordingLine.title || `Recording #${index + 1}`}
+              onChangeText={(newTitle) => updateRecordingTitle(index, newTitle)}
+              placeholder="Enter title"
+            />
+            <Text style={styles.metadata}>
+              {recordingLine.duration} | {formattedDate} | {formattedTime}
+            </Text>
+          </View>
+
+          <View style={styles.buttonscontainer}>
+            <Pressable onPress={() => playSound(recordingLine.uri)}>
+              <Text>Play</Text>
+            </Pressable>
+            {/* Share button */}
+            <Pressable onPress={() => shareRecording(recordingLine)}>
+              <EvilIcons name="share-apple" size={20} color="black" />
+            </Pressable>
+            {/* <Pressable>
+              <Ionicons name="ellipsis-vertical" size={15} color="black" />
+            </Pressable> */}
+          </View>
           {/* Play button */}
-          <Pressable onPress={() => playSound(recordingLine.uri)}>
-            <Text>Play</Text>
-          </Pressable>
-          {/* Share button */}
-          <Pressable onPress={() => shareRecording(recordingLine)}>
-            <EvilIcons name="share-apple" size={15} color="black" />
-          </Pressable>
-          <Pressable>
-            <Ionicons name="ellipsis-vertical" size={15} color="black" />
-          </Pressable>
+       
         </View>
       </Pressable>
     ));
@@ -322,11 +328,11 @@ const filteredRecordings = recordings.filter((recording) =>
       {/* Scrollable list of recordings */}
       <ScrollView style={styles.recordingListContainer}>
         <View>
-          <Pressable style={styles.backbutton}>
+          {/* <Pressable style={styles.backbutton}>
             <Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} />
-          </Pressable>
-          <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" }}>Your Recordings</Text>
-           <TextInput style={styles.input} placeholder='Search...' value={searchQuery} onChangeText={(text)=>setSearchQuery(text)}/>
+          </Pressable> */}
+          <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" , marginTop:20}}>Your Recordings</Text>
+           <TextInput style={styles.input} placeholder='Search Recordings...' value={searchQuery} onChangeText={(text)=>setSearchQuery(text)}/>
           {getRecordingLines()}
           {loading && <ActivityIndicator size="large" color="#5AB8A6"/>}
         </View>
@@ -343,12 +349,6 @@ const filteredRecordings = recordings.filter((recording) =>
             {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <Octicons name="dot-fill" size={36} color="red" />}
           </Text>
         </Pressable >
-        {/* <Pressable>
-          <Text>How Is Our App </Text>
-        </Pressable> */}
-        {/* <Pressable onPress={()=>clearRecordings()}>
-         <Text>Clear</Text>
-        </Pressable> */}
         <Toast/>
       </View>
     </SafeAreaView>
@@ -390,8 +390,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 70,
-    gap:5,
+    height: 80,
+    gap:15,
     width: "100%",
     borderRadius: 10,
     padding: 15,
@@ -439,5 +439,15 @@ const styles = StyleSheet.create({
   },
   recordInput:{
     width: 100
+  }, 
+  textDate:{
+    display:"flex",
+    flexDirection:"column",
+    gap:10
+  },
+  buttonscontainer:{
+    display:"flex",
+    flexDirection:"column",
+   gap:10
   }
 });
