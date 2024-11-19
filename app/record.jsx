@@ -17,11 +17,11 @@ import * as FileSystem from 'expo-file-system';
 
 
 export default function RecordingScreen() {
+  
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
   const [loading,setloading]=useState(false);
-  // const [progress,setprogress] = useState(false);
-  // const [currentPlayingIndex, setCurrentTextIndex]=useState(null)
+  const [searchQuery, setSearchQuery] = useState('');
 
 
 //  Destructure Date.now() to receive date and time
@@ -43,6 +43,11 @@ const seconds = date.getSeconds();
 const formattedDate = `${day}/${month}/${year}`;
 const formattedTime = `${hours}:${minutes}:${seconds}`
 
+function getFilteredRecordings() {
+  return recordings.filter((recording) =>
+    (recording.title || `Recording #${index + 1}`).toLowerCase().includes(searchQuery.toLowerCase())
+  );
+}
   // Function to start recording audio
   async function startRecording() {
     try {
@@ -239,9 +244,13 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       ]
     );
   };
+
+
+  
   
   // Function to render each recording item
   function getRecordingLines() {
+    
     const playSound = async (uri) => {
       try {
         const { sound } = await Audio.Sound.createAsync({ uri });
@@ -256,15 +265,39 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       }
     };
   
+    const updateRecordingTitle = async (index, newTitle) => {
+      try {
+        // Update title in the state
+        const updatedRecordings = recordings.map((recording, i) =>
+          i === index ? { ...recording, title: newTitle } : recording
+        );
+        setRecordings(updatedRecordings);
+  
+        // Persist updated recordings in AsyncStorage
+        await AsyncStorage.setItem('recordings', JSON.stringify(updatedRecordings));
+      } catch (error) {
+        console.error('Error updating recording title:', error);
+      }
+    };
+  
     return recordings.map((recordingLine, index) => (
       <Pressable key={index} onLongPress={() => deleteRecording(index)}>
         <View style={styles.row}>
-          <Text style={styles.fill}>
-            Recording #{index + 1} | {recordingLine.duration} | {formattedDate} | {formattedTime}
+          {/* Editable title */}
+          <TextInput
+            style={styles.recordInput}
+            value={recordingLine.title || `Recording #${index + 1}`}
+            onChangeText={(newTitle) => updateRecordingTitle(index, newTitle)}
+            placeholder="Enter title"
+          />
+          <Text style={styles.metadata}>
+            {recordingLine.duration} | {formattedDate} | {formattedTime}
           </Text>
+          {/* Play button */}
           <Pressable onPress={() => playSound(recordingLine.uri)}>
             <Text>Play</Text>
           </Pressable>
+          {/* Share button */}
           <Pressable onPress={() => shareRecording(recordingLine)}>
             <EvilIcons name="share-apple" size={15} color="black" />
           </Pressable>
@@ -276,8 +309,9 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
     ));
   }
   
+  
 
-  // Function to clear all recordings
+
   // function clearRecordings() {
   //   setRecordings([]);
   // }
@@ -288,13 +322,12 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
       
       {/* Scrollable list of recordings */}
       <ScrollView style={styles.recordingListContainer}>
-
         <View>
           <Pressable style={styles.backbutton}>
             <Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} />
           </Pressable>
           <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" }}>Your Recordings</Text>
-           <TextInput style={styles.input} placeholder='Search...'/>
+           <TextInput style={styles.input} placeholder='Search...' value={searchQuery} onChangeText={(text)=>setSearchQuery(text)}/>
           {getRecordingLines()}
           {loading && <ActivityIndicator size="large" color="#5AB8A6"/>}
         </View>
@@ -310,7 +343,13 @@ const formattedTime = `${hours}:${minutes}:${seconds}`
           <Text style={styles.buttonText}>
             {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <Octicons name="dot-fill" size={36} color="red" />}
           </Text>
-        </Pressable>
+        </Pressable >
+        {/* <Pressable>
+          <Text>How Is Our App </Text>
+        </Pressable> */}
+        {/* <Pressable onPress={()=>clearRecordings()}>
+         <Text>Clear</Text>
+        </Pressable> */}
         <Toast/>
       </View>
     </SafeAreaView>
@@ -326,14 +365,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   container: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10,
-    position: "absolute",
-    bottom: 50,
-    left: "50%",
-    transform: [{ translateX: -20 }],
+    position: 'absolute',
+    bottom: 40,
+    width: 40, // specify your desired width
+    alignSelf: 'center', // this will center the container itself
   },
   button: {
     padding: 15,
@@ -353,8 +391,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 50,
-    gap:10,
+    height: 70,
+    gap:5,
     width: "100%",
     borderRadius: 10,
     padding: 15,
@@ -363,6 +401,9 @@ const styles = StyleSheet.create({
   },
   fill: {
     flex: 1,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    padding: 5
   },
   recordingListContainer: {
     flex: 1,
@@ -396,5 +437,8 @@ const styles = StyleSheet.create({
       padding:7,
       width:"100%",
       borderColor:"#5AB8A6",
+  },
+  recordInput:{
+    width: 100
   }
 });
