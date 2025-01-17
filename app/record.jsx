@@ -21,6 +21,8 @@ export default function RecordingScreen() {
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
   const [loading,setloading]=useState(false);
+  const [timer,setTimer] = useState(0);
+  const [intervalid, setIntervalId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('');
 
 
@@ -58,6 +60,11 @@ const filteredRecordings = recordings.filter((recording) =>
         });
         const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
         setRecording(recording);
+
+        const id = setInterval(()=>{
+          setTimer((prev)=>prev+1)
+        },1000)
+        setIntervalId(id)
       }
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -120,7 +127,12 @@ const filteredRecordings = recordings.filter((recording) =>
         text2: 'Your recording has been successfully saved.',
         position: 'top',
       });
-  
+       
+      // Stop Timer
+      clearInterval(intervalid);
+      setIntervalId(null);
+      setTimer(0)
+      
       setRecording(null);
     } catch (error) {
       console.error('Error stopping recording:', error);
@@ -182,7 +194,7 @@ const filteredRecordings = recordings.filter((recording) =>
   
       // Share the file
       await Sharing.shareAsync(newUri, {
-        mimeType: 'audio/mp4', // Adjust mime type as needed
+        mimeType: 'audio/mp4', 
         dialogTitle: 'Share Your Recording',
       });
   
@@ -245,6 +257,12 @@ const filteredRecordings = recordings.filter((recording) =>
   };
 
 
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
+
   
   
   // Function to render each recording item
@@ -303,9 +321,6 @@ const filteredRecordings = recordings.filter((recording) =>
             <Pressable onPress={() => shareRecording(recordingLine)}>
               <EvilIcons name="share-apple" size={20} color="black" />
             </Pressable>
-            {/* <Pressable>
-              <Ionicons name="ellipsis-vertical" size={15} color="black" />
-            </Pressable> */}
           </View>
           {/* Play button */}
        
@@ -313,24 +328,15 @@ const filteredRecordings = recordings.filter((recording) =>
       </Pressable>
     ));
   }
-  
-  
 
-
-  // function clearRecordings() {
-  //   setRecordings([]);
-  // }
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <StatusBar style="Dark" />
-      
+    
       {/* Scrollable list of recordings */}
       <ScrollView style={styles.recordingListContainer}>
-        <View>
-          {/* <Pressable style={styles.backbutton}>
-            <Ionicons name="caret-back" size={20} color="#5AB8A6" onPress={()=>handleBack()} />
-          </Pressable> */}
+        <View>  
           <Text style={{ textAlign: "center", fontSize:20,fontWeight:"bold" , marginTop:20}}>Your Recordings</Text>
            <TextInput style={styles.input} placeholder='Search Recordings...' value={searchQuery} onChangeText={(text)=>setSearchQuery(text)}/>
           {getRecordingLines()}
@@ -341,16 +347,25 @@ const filteredRecordings = recordings.filter((recording) =>
       
       {/* Control buttons */}
       <View style={styles.container}>
-        <Pressable
-          style={styles.button}
-          onPress={recording ? stopRecording : startRecording}
-        >
-          <Text style={styles.buttonText}>
-            {recording ? <FontAwesome6 name="pause" size={20} color="white" /> : <Octicons name="dot-fill" size={36} color="red" />}
-          </Text>
-        </Pressable >
-        <Toast/>
-      </View>
+      {/* Timer Display */}
+      <Text style={styles.timer}>{formatTime(timer)}</Text>
+
+      {/* Recording Button */}
+      <Pressable
+        style={styles.button}
+        onPress={recording ? stopRecording : startRecording}
+      >
+        <Text style={styles.buttonText}>
+          {recording ? (
+            <FontAwesome6 name="pause" size={20} color="blue" />
+          ) : (
+            <Octicons name="dot-fill" size={36} color="red" />
+          )}
+        </Text>
+      </Pressable>
+
+      <Toast />
+    </View>
     </SafeAreaView>
   );
 }
@@ -360,8 +375,11 @@ const filteredRecordings = recordings.filter((recording) =>
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    backgroundColor: "#5AB8A6",
+    backgroundColor: "#2C3E50", // Deep blue-gray background
     alignItems: 'center',
+  },
+  statusBar:{
+    backgroundColor:"#2C3E50"
   },
   container: {
     flexDirection: 'column',
@@ -369,85 +387,160 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 40,
-    width: 40, // specify your desired width
-    alignSelf: 'center', // this will center the container itself
+    width: 120,
+    alignSelf: 'center',
   },
   button: {
-    padding: 15,
-    backgroundColor: '#1e90ff',
-    borderRadius: 5,
-    marginVertical: 10,
-    borderRadius:"50%",
-    height:50,
-    width:50,
-    alignItems:"center",
-    justifyContent:"center",
-    padding:10
+    backgroundColor: '#3498DB', // Bright blue for recording button
+    borderRadius: 50,
+    height: 90,
+    width: 90,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 4,
+    borderColor: '#ECF0F1',
+    // Enhanced shadow
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 10,
   },
   buttonText: {
-    color: 'white'
+    color: '#ECF0F1',
+  },
+  timer: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#ECF0F1',
+    marginBottom: 20,
+    letterSpacing: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 80,
-    gap:15,
+    minHeight: 90,
+    gap: 15,
     width: "100%",
-    borderRadius: 10,
-    padding: 15,
-    backgroundColor: '#f0f0f0',
-    marginTop:10
-  },
-  fill: {
-    flex: 1,
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    padding: 5
+    borderRadius: 20,
+    padding: 16,
+    backgroundColor: '#34495E', // Darker blue-gray
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#445565',
+    // Enhanced shadow
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
   },
   recordingListContainer: {
     flex: 1,
-    marginTop: 20,
-    marginBottom: 130,
-    borderRadius: 20,
-    width: '90%',
-    backgroundColor: "white",
+    marginTop: 24,
+    marginBottom: 180,
+    borderRadius: 30,
+    width: '94%',
+    backgroundColor: "#243342", // Medium blue-gray
     paddingHorizontal: 20,
-    
-    // Shadow for iOS
+    paddingTop: 16,
+    // Enhanced shadow
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 6,
-
-    // Shadow for Android
-    elevation: 10,
+    shadowRadius: 12,
+    elevation: 15,
   },
-  backbutton:{
-    margin:10,
-   marginHorizontal:-10
+  input: {
+    height: 55,
+    fontSize: 16,
+    borderWidth: 0,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    width: "100%",
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    // Subtle inner shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  input:{
-      flex: 1,
-      height: 40,
-      fontSize: 16,
-      borderWidth: 2,
-      marginTop:10,
-      borderRadius:"20px",
-      padding:7,
-      width:"100%",
-      borderColor:"#5AB8A6",
+  recordInput: {
+    width: 180,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#ECF0F1',
+    padding: 4,
+    backgroundColor: 'transparent',
   },
-  recordInput:{
-    width: 100
-  }, 
-  textDate:{
-    display:"flex",
-    flexDirection:"column",
-    gap:10
+  textDate: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 10,
   },
-  buttonscontainer:{
-    display:"flex",
-    flexDirection:"column",
-   gap:10
+  buttonscontainer: {
+    flexDirection: "row",
+    alignItems: 'center',
+    gap: 20,
+    backgroundColor: '#2C3E50',
+    padding: 10,
+    borderRadius: 12,
+  },
+  metadata: {
+    fontSize: 13,
+    color: '#BDC3C7',
+    fontWeight: '400',
+    letterSpacing: 0.5,
+  },
+  headerText: {
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "700",
+    marginTop: 24,
+    marginBottom: 16,
+    color: '#ECF0F1',
+    letterSpacing: 0.5,
+  },
+  playButton: {
+    backgroundColor: '#3498DB',
+    padding: 12,
+    borderRadius: 12,
+    width: 80,
+    alignItems: 'center',
+  },
+  playButtonText: {
+    color: '#ECF0F1',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  shareButton: {
+    backgroundColor: '#2C3E50',
+    padding: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingIndicator: {
+    marginTop: 24,
+    color: '#3498DB',
+  },
+  searchIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 28,
+    color: '#BDC3C7',
   }
 });
